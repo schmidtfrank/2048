@@ -34,14 +34,43 @@ class Game2048:
     def new_tile(self):
 
         valid_tiles = []
-        for y in range(3):
-            for x in range(3):
+        for y in range(4):
+            for x in range(4):
                 if self.board[y][x] == 0:
                     valid_tiles.append((y,x))
         
-        new_idx = random.randint(0,len(valid_tiles)-1)
+        if len(valid_tiles) == 0:
+            #whatever move was input didnt succeed in anything, so check if game is over and do not attempt to add tile.
+            self.game_end()
+            return
 
-        self.board[valid_tiles[new_idx][0]][valid_tiles[new_idx][1]] = 2
+        y,x = random.choice(valid_tiles)
+
+        self.board[y][x] = 2
+
+        self.game_end()
+    
+    def game_end(self):
+        for y in range(4):
+            for x in range(4):
+                if self.board[y][x] == 0:
+                    #there is a valid move
+                    return 0
+                if y-1 >= 0:
+                    if self.board[y-1][x] == self.board[y][x]:
+                        return 0
+                if y+1 <= 3:
+                    if self.board[y+1][x] == self.board[y][x]:
+                        return 0
+                if x+1 <= 3:
+                    if self.board[y][x+1] == self.board[y][x]:
+                        return 0
+                if x-1 >= 0:
+                    if self.board[y][x-1] == self.board[y][x]:
+                        return 0
+        #TODO
+        print("game over!")
+        return 1
     def move_right(self):
         #self.board[y][x] works like intuition
         y = 0
@@ -68,16 +97,64 @@ class Game2048:
                             self.score += self.board[y][x]
                             self.board[y][i] = 0
                             break
+                        elif self.board[y][i] != 0:
+                            break
                         i -= 1
                 x -= 1
             y += 1
         
         self.new_tile()
     
+    def move_left(self):
+        #self.board[y][x] works like intuition
+        y = 0
+        while y <= 3:
+            x = 0
+            while x <= 3:
+                if self.board[y][x] == 0:
+                    #need to see if there is any number in this row to put in our position
+                    i = x+1
+                    while i <= 3:
+                        #found a match!
+                        if self.board[y][i] != 0:
+                            self.board[y][x] = self.board[y][i]
+                            self.board[y][i] = 0
+                            x -= 1
+                            break
+                        i += 1
+                elif self.board[y][x] != 0:
+                    #we need to check if something will merge into us here
+                    i = x+1
+                    while i <= 3:
+                        if self.board[y][i] == self.board[y][x]:
+                            self.board[y][x] *= 2
+                            self.score += self.board[y][x]
+                            self.board[y][i] = 0
+                            break
+                        elif self.board[y][i] != 0:
+                            break
+                        i += 1
+                x += 1
+            y += 1
+        
+        self.new_tile()
+    
 
+def test_run(GameInstance):
+    v = ""
+    while v != 'q':
+        print("---")
+        v = input()
+        if v == "r":
+            GameInstance.move_right()
+        elif v == "l":
+            GameInstance.move_left()
+        GameInstance.print_board()
 
 GameInstance = Game2048()
 
 GameInstance.new_game()
 
 GameInstance.print_board()
+
+test_run(GameInstance)
