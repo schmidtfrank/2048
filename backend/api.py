@@ -1,8 +1,22 @@
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 from game import Game2048
 
 
 app = FastAPI()
+
+origins = [
+    "http://localhost",
+    "http://localhost:3000"
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,  
+    allow_credentials=True, 
+    allow_methods=["*"], 
+    allow_headers=["*"],
+)
 
 GameInstance = Game2048()
 
@@ -33,3 +47,8 @@ async def move(movement:str):
 
     #choose to ignore invalid moves instead of throwing error
     return {"board":GameInstance.board}
+
+@app.get("/score")
+async def get_score():
+    global GameInstance
+    return {"score" : GameInstance.score}
