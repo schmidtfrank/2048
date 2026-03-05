@@ -74,6 +74,7 @@ class Game2048:
     def move_right(self):
         #self.board[y][x] works like intuition
         y = 0
+        moved_tile = False
         while y <= 3:
             x = 3
             while x >= 0:
@@ -86,6 +87,7 @@ class Game2048:
                             self.board[y][x] = self.board[y][i]
                             self.board[y][i] = 0
                             x += 1
+                            moved_tile = True
                             break
                         i -= 1
                 elif self.board[y][x] != 0:
@@ -96,6 +98,7 @@ class Game2048:
                             self.board[y][x] *= 2
                             self.score += self.board[y][x]
                             self.board[y][i] = 0
+                            moved_tile = True
                             break
                         elif self.board[y][i] != 0:
                             break
@@ -103,11 +106,13 @@ class Game2048:
                 x -= 1
             y += 1
         
-        self.new_tile()
+        if moved_tile:
+            self.new_tile()
     
     def move_left(self):
         #self.board[y][x] works like intuition
         y = 0
+        moved_tile = False
         while y <= 3:
             x = 0
             while x <= 3:
@@ -120,6 +125,7 @@ class Game2048:
                             self.board[y][x] = self.board[y][i]
                             self.board[y][i] = 0
                             x -= 1
+                            moved_tile = True
                             break
                         i += 1
                 elif self.board[y][x] != 0:
@@ -130,6 +136,7 @@ class Game2048:
                             self.board[y][x] *= 2
                             self.score += self.board[y][x]
                             self.board[y][i] = 0
+                            moved_tile = True
                             break
                         elif self.board[y][i] != 0:
                             break
@@ -137,7 +144,8 @@ class Game2048:
                 x += 1
             y += 1
         
-        self.new_tile()
+        if moved_tile:
+            self.new_tile()
     
 
 def test_run(GameInstance):
@@ -150,11 +158,3 @@ def test_run(GameInstance):
         elif v == "l":
             GameInstance.move_left()
         GameInstance.print_board()
-
-GameInstance = Game2048()
-
-GameInstance.new_game()
-
-GameInstance.print_board()
-
-test_run(GameInstance)
