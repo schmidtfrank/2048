@@ -73,6 +73,7 @@ export default function App() {
   const [newTiles, setNewTiles] = useState(new Set());
   const [mergedTiles, setMergedTiles] = useState(new Set());
   const [error, setError] = useState(null);
+  const [gameOver, setGameOver] = useState(false);
 
   const flatKey = (r, c) => r * 4 + c;
 
@@ -119,6 +120,7 @@ export default function App() {
       setMergedTiles(new Set());
       setBoard(data.board);
       setPrevBoard(null);
+      setGameOver(false);
       await fetchScore();
       setStatus("playing");
     } catch (e) {
@@ -128,7 +130,7 @@ export default function App() {
   }, []);
 
   const sendMove = useCallback(async (key) => {
-    if (status !== "playing") return;
+    if (status !== "playing" || gameOver) return;
     setStatus("loading");
     setError(null);
     try {
@@ -137,12 +139,13 @@ export default function App() {
       const data = await res.json();
       setPrevBoard(board);
       applyBoard(data.board, board);
+      if (data.game_over) setGameOver(true);
       setStatus("playing");
     } catch (e) {
       setError(e.message);
       setStatus("playing");
     }
-  }, [status, board]);
+  }, [status, board, gameOver]);
 
   useEffect(() => {
     const handleKey = (e) => {
@@ -166,6 +169,7 @@ export default function App() {
       justifyContent: "center",
       fontFamily: "'Space Mono', monospace",
       padding: "24px",
+      isolation: "isolate",
       backgroundImage: `
         radial-gradient(ellipse at 20% 20%, rgba(124,58,237,0.08) 0%, transparent 50%),
         radial-gradient(ellipse at 80% 80%, rgba(56,161,105,0.06) 0%, transparent 50%)
@@ -181,6 +185,10 @@ export default function App() {
           0% { transform: scale(1); }
           50% { transform: scale(1.18); }
           100% { transform: scale(1); }
+        }
+        @keyframes overlayIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
         }
         @keyframes fadeSlideIn {
           from { opacity: 0; transform: translateY(-10px); }
@@ -277,7 +285,42 @@ export default function App() {
         maxWidth: "440px",
         animation: "fadeSlideIn 0.5s ease 0.1s both",
         boxShadow: "0 20px 60px rgba(0,0,0,0.5)",
+        position: "relative",
+        overflow: "hidden",
       }}>
+        {/* Game Over Overlay */}
+        {gameOver && (
+          <div style={{
+            position: "absolute",
+            inset: 0,
+            borderRadius: "16px",
+            background: "rgba(13,13,26,0.92)",
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            gap: "16px",
+            zIndex: 10,
+            animation: "overlayIn 0.3s ease",
+          }}>
+            <div style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: "3rem",
+              color: "#fc8181",
+              letterSpacing: "0.08em",
+              textShadow: "0 0 30px rgba(252,129,129,0.6)",
+            }}>Game Over</div>
+            <div style={{
+              fontSize: "0.65rem",
+              color: "rgba(255,255,255,0.35)",
+              letterSpacing: "0.15em",
+              textTransform: "uppercase",
+            }}>Final Score: {score}</div>
+            <button className="new-game-btn" onClick={startNewGame} style={{ marginTop: "4px" }}>
+              Play Again
+            </button>
+          </div>
+        )}
         <div style={{
           display: "grid",
           gridTemplateColumns: "repeat(4, 1fr)",

@@ -39,14 +39,12 @@ async def move(movement:str):
     elif movement == 'a':
         GameInstance.move_left()
     elif movement == 'w':
-        #TODO
-        pass
+        GameInstance.move_up()
     elif movement == 's':
-        #TODO
-        pass
+        GameInstance.move_down()
 
     #choose to ignore invalid moves instead of throwing error
-    return {"board":GameInstance.board}
+    return {"board":GameInstance.board,"game_over":GameInstance.game_over}
 
 @app.get("/score")
 async def get_score():
