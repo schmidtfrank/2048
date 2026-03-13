@@ -7,9 +7,10 @@ class Game2048:
             [0,0,0,0],
             [0,0,0,0],
             [0,0,0,0],
-            [2,0,0,0]
+            [0,0,0,0]
         ]
         self.game_over = False
+        self.allow_tile_replace = True
     
     #debugging purposes
     def print_board(self):
@@ -33,6 +34,9 @@ class Game2048:
                 self.board[x][y] = 2
     
     def new_tile(self):
+        if not self.allow_tile_replace:
+            return
+        
         valid_tiles = []
         for y in range(4):
             for x in range(4):
